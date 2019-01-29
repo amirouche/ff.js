@@ -19,7 +19,7 @@ hiting recursion depth limits. Nonetheless, it was possible to make
 the classic [todomvc](https://github.com/amirouche/scheme-todomvc)
 exercice.
 
-The story about ff.js in Scheme continue
+The story about `ff.js` in Scheme continue
 [here](http://scheme-lang.com/cons/).
 
 Then I challenged myself with the task to port that code to
@@ -240,7 +240,7 @@ At the end of the day, you must:
 
 **E.g.**:
 
-Here is simple example for clicker game:
+Here is simple example for a clicker game:
 
 ```javascript
 let onClick = function (app, model) {  // first `app` and `model` as argument,
