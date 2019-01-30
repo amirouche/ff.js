@@ -4,9 +4,23 @@
 
 **experimental**
 
+## Motivation
+
+- Keep It Simply Simple
+
+- Avoid classes when possible
+
+- Do not support Server-Side-Rendering
+
+- Implement (fractal?) **M**odel-**V**iew-**C**ontroller pattern
+
+- Avoid reduxjs actions indirection, because I did not find a
+  compeling reason to define a giant enumeration, neither does the
+  various (hackish?) way to define the reducer.
+
 ## History
 
-This started as learning project to understand how
+`ff.js` started as learning project to understand how
 [redux](https://github.com/reduxjs/react-redux/) and
 [elm](https://elm-lang.org/) work with [scheme programming
 language](http://scheme-lang.com/). Basicaly, it was a note taking
@@ -26,32 +40,29 @@ Then I challenged myself with the task to port that code to
 JavaScript.  To implement asynchronous requests without callbacks my
 scheme code was relying on
 [call/cc](https://en.wikipedia.org/wiki/Call-with-current-continuation)
-which JavaScript does not have. Instead, modern browser implement
+which JavaScript does not have. Instead, modern browsers implement
 [`async` / `await` which is readily available in most modern
 browsers](https://caniuse.com/#feat=async-functions).  The base
 library ported to JavaScript, I discovered through various tests a
 race condition that was happening when forms were automatically filled
 by the browser. My design being somewhat like reduxjs I looked at how
 reduxjs solved the issue and re-discovered that my controllers were
-asynchronous hence subject to race conditions. I fixed that bug using
-what I call a `transformer` that is event-handlers namely controllers
-return a synchronous function that should return the new state.
+asynchronous (hence subject to race conditions because of concurrency)
+whereas the equivalent in redux (called reducers) were synchronous. I
+fixed that bug using what I call a `transformer` that is
+event-handlers (namely controllers) return a synchronous function that
+should return the new state. See how redux workaround that issue
+https://redux.js.org/advanced/async-actions#async-action-creators
 
-The result 350 lines of javascript that build a state manager for
+I know there is still a source of race condition when the code has
+concurrency involved (for instance via `setTimeout`). Right now,
+`ff.js` does not make it easy to do such things hence avoids those
+race conditions. Avoiding `setTimeout` makes it difficult, if not
+impossible, to implement progress bars.
+
+The result 350 lines of JavaScript that build a state manager for
 reactjs that use lot of functions (that might return (async?)
 functions).
-
-## Motivation
-
-- Keep It Simple Simple
-
-- Avoid classes when possible
-
-- Do not support Server-Side-Rendering
-
-- Avoid reduxjs actions indirection, because I did not find a
-  compeling reason to define a giant enumeration, neither does the
-  various (hackish?) way to define the reducer.
 
 ## Getting started
 
@@ -67,8 +78,7 @@ All the code can be found in `ff.js/my-app
 ### Long way
 
 This assumes you have nodejs and npm installed. If it's not the case
-follow [nvm tutorial](https://github.com/creationix/nvm#installation)
-(or check your distro package manager).
+follow [nvm tutorial](https://github.com/creationix/nvm#installation).
 
 1. Install `create-react-app` with `npm install -g create-react-app`
 1. Start the project with the following command: `npm init react-app my-app`
@@ -126,7 +136,7 @@ defining an application. It has a single public method called
 
 ### `Router.append(pattern, init, view)`
 
-`Router.append` allows to add a route to you application.`
+`Router.append` allows to add a route to you application.
 
 ### `Router`'s `pattern`
 
@@ -182,7 +192,7 @@ let routeClean = async function(app, model) {
 }
 ```
 
-What you take away from this example:
+What you can take away from this example:
 
 1. Route `init` functions are `async function`
 2. They take as arguments `app` and `model`
@@ -211,7 +221,9 @@ let init = async function(app, model, params) {
 
 ### `Router`'s `view`
 
-a route's `view` must return a reactjs component. It takes as arguments the current application's `model` and `makeController` aliased `mc`.
+A route's `view` must return a reactjs component. It takes as
+arguments the current application's `model` and `makeController`
+aliased `mc`.
 
 **E.g.**::
 
@@ -223,14 +235,15 @@ let view = function(model, mc) {
 }
 ```
 
-`model` is not very interesting it is the usual
-stuff.
+`model` is not very interesting it is the usual stuff.
 
 `makeController` aka. `mc` is more interesting.  Simply said, `mc`
 will bind event handlers to the current application so that they
 execute in the context of the application. That is `mc` will pass (or
-if you prefer *inject*) the current application `model` to the event
-handler. Event handlers must return a *transformer*.
+if you prefer *inject* via a closure) the current application `model`
+to the event handler.
+
+Event handlers must return a *transformer*.
 
 At the end of the day, you must:
 
@@ -244,7 +257,7 @@ Here is simple example for a clicker game:
 
 ```javascript
 let onClick = function (app, model) {  // first `app` and `model` as argument,
-                                       // not async.
+                                       // not async. That is the closure added by mc.
 
     return async function(event) {  // then the *event handler*
                                     // as an `async function`
@@ -285,4 +298,4 @@ let onCreate = function(app, model) {
 ## In the wild
 
 - [lasthope](https://github.com/amirouche/lastho.pe) conversational
-  search engine with the backend in python.
+  search engine with a python backend.
