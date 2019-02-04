@@ -66,17 +66,6 @@ functions).
 
 ## Getting started
 
-### Short way
-
-1. Clone this repository `git clone https://github.com/amirouche/ff.js`
-1. Change directory `cd ff.js/my-app/`
-1. Install dependencies `npm install`
-1. Run the app `npm start`
-
-All the code can be found in `ff.js/my-app
-
-### Long way
-
 This assumes you have nodejs and npm installed. If it's not the case
 follow [nvm tutorial](https://github.com/creationix/nvm#installation).
 
