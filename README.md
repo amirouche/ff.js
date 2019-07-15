@@ -1,5 +1,7 @@
 # ff.js
 
+> “We keep moving forward, opening new doors, and doing new things because we’re curious and curiosity keeps leading us down new paths.” Walt Disney
+
 **function-based state manager for reactjs**
 
 **experimental**
