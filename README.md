@@ -1,24 +1,27 @@
-# ff.js
-
-> “We keep moving forward, opening new doors, and doing new things because we’re curious and curiosity keeps leading us down new paths.” Walt Disney
-
-**function-based state manager for reactjs**
+# ff.js - function-based state manager
 
 **experimental**
 
+> “We keep moving forward, opening new doors, and doing new things
+> because we’re curious and curiosity keeps leading us down new
+> paths.” Walt Disney
+
+![seemingly fractal](https://raw.githubusercontent.com/amirouche/ff.js/master/fabian-fauth-RiWvn39cZSQ-unsplash.jpg)
+
 ## Motivation
 
-- Keep It Simply Simple
+- Keep It Simply Simple,
 
-- Avoid classes when possible
+- Avoid classes when possible,
 
-- Do not support Server-Side-Rendering
+- Do not support Server-Side-Rendering,
 
-- Implement (fractal?) **M**odel-**V**iew-**C**ontroller pattern
+- Implement (fractal?) **M**odel-**V**iew-**C**ontroller pattern,
 
 - Avoid reduxjs actions indirection, because I did not find a
-  compeling reason to define a giant enumeration, neither does the
-  various (hackish?) way to define the reducer.
+  compeling reason to define a giant enumeration,
+
+- Neither does the various (hackish?) way to define the reducer.
 
 ## History
 
@@ -28,12 +31,11 @@
 language](http://scheme-lang.com/). Basicaly, it was a note taking
 exercices in the form of lot of parenthesis. I started with
 [biwascheme](https://www.biwascheme.org/), an interpreter of scheme
-written in JavaScript which is nice.  Because [browsers don't
-implement tail call
-optimisations](https://kangax.github.io/compat-table/es6/), yet, I was
-hiting recursion depth limits. Nonetheless, it was possible to make
-the classic [todomvc](https://github.com/amirouche/scheme-todomvc)
-exercice.
+written in JavaScript.  Because [browsers don't implement tail call
+optimisation (TCO)](https://kangax.github.io/compat-table/es6/), yet,
+I was hiting recursion depth limit. Nonetheless, it was possible to
+make the classic
+[todomvc](https://github.com/amirouche/scheme-todomvc) exercice.
 
 The story about `ff.js` in Scheme continue
 [here](http://scheme-lang.com/cons/).
@@ -59,10 +61,9 @@ https://redux.js.org/advanced/async-actions#async-action-creators
 I know there is still a source of race condition when the code has
 concurrency involved (for instance via `setTimeout`). Right now,
 `ff.js` does not make it easy to do such things hence avoids those
-race conditions. Avoiding `setTimeout` makes it difficult, if not
-impossible, to implement progress bars.
+race conditions.
 
-The result 350 lines of JavaScript that build a state manager for
+The result 350 lines of JavaScript that make a state manager for
 reactjs that use lot of functions (that might return (async?)
 functions).
 
@@ -86,7 +87,7 @@ follow [nvm tutorial](https://github.com/creationix/nvm#installation).
 
 The application flow is defined as the pattern that the code follows
 during the life of the application. There is an entry point called
-**route init** then it goes through a somekind of loop a certain
+**route init** then it goes through a some kind of loop a certain
 number of times and then it exits that loop restarting from the entry
 point probably another **route init**. It can be represented as
 follow:
@@ -94,11 +95,11 @@ follow:
 ![ff single route diagram](ff-single-route-flow.png)
 
 Multiple turn in the same loop means that the user interact with the
-application on the same route (aka. same domain and path).
+application on the same route ie. the same URL's path.
 
-Changing route means changing loop and that happens in the controller,
-so the overall life of the application look something like the
-following:
+Changing route, means the application flow will move to a new loop.
+That happens in the controller. So the overall life of the application
+look something like the following:
 
 ![ff multiple route diagram](ff-multiple-route-flow.png)
 
@@ -109,12 +110,13 @@ attached to a DOM event via ReactJS. Last but not least, the diagram
 fail to give a clue about what data is passed around.
 
 An immutable application state called `model` is passed between the
-different functions.  `render` through `view` functions have the
-responsability to return reactjs components based on the current
-`model` and controllers have the responsability to *transform* that
+various (maybe async) functions.  `render` through view functions have
+the responsability to return reactjs components based on the current
+`model`. Controllers have the responsability to *transform* that
 `model` into a new model that will be used to re-render the
-application, hence the loop thing. When you want to break the loop
-aka. change route, you can call `redirect` in the controller.
+application. Hence the loop thing. When you want to break the loop
+aka. change route aka. change path, you can call `redirect` in the
+controller.
 
 The following paragraph try to help with that.
 
@@ -125,15 +127,17 @@ application will use.  That is also the first object you will use when
 defining an application. It has a single public method called
 `Router.append`.
 
+TODO: `Router.append` could be a function :8ball:
+
 ### `Router.append(pattern, init, view)`
 
-`Router.append` allows to add a route to you application.
+`Router.append` allows to add a route to the application.
 
 ### `Router`'s `pattern`
 
 `Router.append` takes a `pattern` as first argument. A pattern is an
-url path that might contains parameters enclosed in curly
-braces. Parameters will match any path component.
+URL path that might contains parameters enclosed in curly
+braces. Parameters will match any component of a path.
 
 **E.g.**:
 
@@ -158,10 +162,10 @@ application's `model` to render the current route. It's an
 asynchronous function that returns a transformer:
 
 - `init` functions are asynchronous it means that they are defined
-  with `async function` and that they can fetch data from a server,
-  which might come handy.
+  with `async function` prelude and that they can fetch data from a
+  server, which might come handy.
 
-- `init` function returns a *transformer*. A *transformer* is a pure
+- `init` functions return a *transformer*. A *transformer* is a pure
   function of the `app` and `model` that must return the new `model`.
 
 What you must remember is that `init` functions are executed in two
@@ -185,23 +189,21 @@ let routeClean = async function(app, model) {
 
 What you can take away from this example:
 
-1. Route `init` functions are `async function`
-2. They take as arguments `app` and `model`
-3. They must return a pure function of `app` and `model`.
+1. Route `init` functions are `async` function
+2. They take as arguments `app` and `model` they look like `async
+   function(app, model)`
+3. They must return a pure function of `app` and `model`, something
+   like `async function(app, model) { return (app, model) => model}`
 
-In this case, the returned *transformer* returns the a *cleaned*
-model.
-
-A more realistic example is a route that is defined with a parameters:
+A more realistic example is a route that is defined with a parameter:
 
 ```javascript
 router.append('/post/{slug}/', init, view)
 ```
 
-In that case, the `init` function will take an extra argument
-called `params` that is a JavaScript Object where every parameters
-is bound to its value in the current url. Here is an example use of
-that:
+In that case, the `init` function will take an extra argument called
+`params` that is a JavaScript Object where every parameters is bound
+to its value in the current URL. Here is an example use of that:
 
 ```javascript
 let init = async function(app, model, params) {
@@ -238,7 +240,8 @@ Event handlers must return a *transformer*.
 
 At the end of the day, you must:
 
-1. call `mc` on every event handler **e.g.** `<button onClick={mc(onClick)}>increment</button>`
+1. call `mc` on every event handler **e.g.** `<button
+   onClick={mc(onClick)}>increment</button>`
 2. Remember the correct imbrication of `async function` and non-`async
    function` and their arguments.
 
